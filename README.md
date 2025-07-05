@@ -90,7 +90,7 @@ Created actionable, interpretable variables:
 
 ## Link to Jupyter Notebook
 
-[Click here to view the notebook](https://github.com/walhathal/Comparing-Classifiers/blob/main/prompt_III.ipynb)
+[Click here to view the notebook](https://github.com/walhathal/San-Diego-Traffic-Collision-Analysis/blob/main/Capstone%20Project%20AI-ML.ipynb)
 
 ## Author
 
