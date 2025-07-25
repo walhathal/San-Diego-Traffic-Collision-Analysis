@@ -139,7 +139,7 @@ Although this project is complete, future improvements could include:
 ---
 
 ## **View Full Notebook**
-[Click here to view the Jupyter Notebook](https://github.com/walhathal/San-Diego-Traffic-Collision-Analysis/blob/main/Capstone%20Project%20AI-ML.ipynb)
+[Click here to view the Jupyter Notebook](https://github.com/walhathal/San-Diego-Traffic-Collision-Analysis/blob/main/San-Diego-Traffic-Collision-Analysis.ipynb.ipynb)
 
 ---
 
