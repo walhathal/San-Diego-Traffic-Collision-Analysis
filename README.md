@@ -1,97 +1,145 @@
-# San-Diego-Traffic-Collision-Analysis
+# **San-Diego-Traffic-Collision-Analysis**
 UC Berkeley AI-ML Capstone Project
-
-## Project Overview
-This capstone project delivers a comprehensive exploratory data analysis and baseline predictive model for traffic collisions in San Diego County (2014–2023). Leveraging data curated by SANDAG from the California Highway Patrol’s SWITRS system, the analysis uncovers key factors influencing collision severity and establishes a linear regression benchmark for total casualty prediction.
-
-## 1 – Introduction and Business Analysis
-
-### 1.1 Business Understanding  
-Traffic safety is a top priority for regional planners, public-safety officials, and transportation engineers. In San Diego County, collisions impose significant human and economic costs—lost productivity, emergency response expenditures, and, most importantly, injuries and fatalities. By systematically analyzing historical collision data, stakeholders can:  
-- Identify high-risk corridors and intersection types  
-- Understand the influence of environmental factors (weather, lighting, road geometry)  
-- Guide targeted interventions (signal timing adjustments, signage improvements, enforcement campaigns)  
-- Monitor the impact of safety programs over time  
-
-Our capstone delivers data-driven insights to inform resource allocation and policy decisions, ultimately reducing collision severity and improving public safety.
-
-### 1.2 About the Data  
-This analysis leverages the San Diego Association of Governments (SANDAG) portal, which aggregates all reported collisions in San Diego County from January 1, 2014 through December 31, 2023. Every traffic crash for which a law-enforcement officer completes a collision report in the region is included. The California Highway Patrol (CHP) compiles these reports into the Statewide Integrated Traffic Records System (SWITRS). SANDAG downloads, validates, and enriches the SWITRS subset for San Diego, ensuring geographic accuracy and consistency for regional planning. Key attributes include:  
-- **Temporal span:** 2014–2023  
-- **Geography:** All incorporated and unincorporated areas of San Diego County  
-- **Core variables:** collision date/time, primary/secondary road identifiers, latitude/longitude, injury and fatality counts, environmental conditions (weather, lighting), collision severity, party counts  
-
-### 1.3 Research Objectives  
-1. **Exploratory Data Analysis**  
-   - Uncover patterns in injury and fatality distributions  
-   - Examine correlations with environmental and temporal factors  
-2. **Data Preparation**  
-   - Clean missing or duplicate entries  
-   - Engineer features (e.g. total casualties, day-of-week flags)  
-3. **Baseline Modeling**  
-   - Develop a regression model to predict total casualties  
-   - Evaluate using Mean Absolute Error (MAE) and R²  
-4. **Actionable Insights**  
-   - Highlight key risk factors for targeted interventions  
-   - Provide recommendations for future data collection and analysis  
-
-## 3 – Data Understanding  
-- **Shape:** 251 098 rows × 44 columns  
-- **Variable groups:** temporal & IDs, location & geometry, collision details, casualty counts, environmental flags  
-- **Data types:** mixture of numeric, categorical (object), and boolean fields  
-- **Missing patterns:** sparse geometry fields (latitude/longitude), some violation categories; core casualty fields are fully populated  
-
-## 4 – Data Cleaning  
-- **Duplicates:** dropped by `CASE ID`  
-- **Geometry:** removed shapefile/projection columns to reduce memory (Shape, X, Y, Location sandag, Reservation sandag)  
-- **Numeric imputation:** filled `NUMBER INJURED`, `NUMBER KILLED`, `PARTY COUNT` with zero; median-imputed `DISTANCE`; dropped overly sparse fields  
-- **Categorical imputation:** replaced missing values in key strings (e.g. WEATHER, LIGHTING, COLLISION SEVERITY) with “Unknown”  
-- **Boolean flags:** assumed false when missing for fields like `PEDESTRIAN ACCIDENT`, `ALCOHOL INVOLVED`  
-
-## 5 – Outlier Analysis  
-- **Method:** IQR-based detection (multiplier 1.5) on PARTY COUNT, NUMBER INJURED, NUMBER KILLED, DISTANCE, total casualties  
-- **Findings:** small proportion of extreme values (e.g. multi-vehicle pileups, mass-casualty events, implausible distances)  
-- **Handling strategy:**  
-  - **Flag** genuine high-severity events for subgroup analysis  
-  - **Cap** casualties at the 99th percentile for modeling  
-  - **Impute** implausible distance entries with median  
-
-## 6 – Feature Engineering  
-Created actionable, interpretable variables:  
-- `total_casualties` = injuries + fatalities  
-- Binary flags: `is_fatal`, `is_multi_casualty`, `is_severe_collision`, `adverse_weather`, `poor_lighting`, `is_weekend`, `at_intersection`  
-- Ordinal categories: `casualty_level` (none, minor, major), `party_cat` (small, medium, large), `distance_cat` (near, mid, far)  
-- Temporal codes: `accident_year`, `day_of_week_code`  
-
-## 7 – Exploratory Data Analysis  
-- **Univariate:** histograms and boxplots show heavy right-skew in casualties and party counts  
-- **Categorical counts:** majority of collisions are low-severity (0–1 casualties, ≤2 parties), in clear/daylight conditions  
-- **Bivariate:** weak positive association between party count and casualties; slightly higher casualties under adverse weather and on weekends  
-- **Temporal trends:** collision volume peaked pre-pandemic, dipped in 2020, then rebounded; casualties per crash decreased until 2018 and rose thereafter  
-- **Correlation:** `total_casualties` driven almost entirely by injuries (r ≈ 0.99), weak relation to party count (r ≈ 0.19) and fatalities (r ≈ 0.11)  
-
-## 8 – Baseline Modeling  
-- **Model:** Linear Regression predicting `total_casualties` using seven features (`PARTY COUNT`, `NUMBER KILLED`, `day_of_week_code`, `is_weekend`, `at_intersection`, `adverse_weather`, `poor_lighting`)  
-- **Performance:**  
-  - MAE ≈ 0.67 casualties  
-  - R² ≈ 0.049  
-- **Coefficients:**  
-  - `NUMBER KILLED` (~0.94) strongest predictor  
-  - `PARTY COUNT` (~0.24) secondary  
-  - Contextual flags have small linear effects  
-
-## 9 – Conclusions  
-- Most collisions are low-severity; rare high-severity events drive policy urgency  
-- Weekend and adverse-condition crashes exhibit modestly higher severity  
-- Linear baseline provides a clear benchmark: MAE < 0.67, R² > 0.049 for future models  
-- **Next steps:** feature expansion, nonlinear algorithms, cross-validation & tuning, interpretability (SHAP), and stakeholder dashboard  
 
 ---
 
-## Link to Jupyter Notebook
+## **Project Overview**
+This capstone project delivers a comprehensive **exploratory data analysis (EDA)** and **predictive modeling pipeline** for traffic collisions in San Diego County (2014–2023). Using data from the **California Highway Patrol’s SWITRS system**, curated by **SANDAG**, the analysis identifies key factors driving collision severity, builds baseline regression and classification models, and evaluates their effectiveness in predicting severe outcomes.
 
-[Click here to view the notebook](https://github.com/walhathal/San-Diego-Traffic-Collision-Analysis/blob/main/Capstone%20Project%20AI-ML.ipynb)
+The project concludes by highlighting the challenges of modeling **rare severe crashes** and provides actionable insights for improving future models.
 
-## Author
+---
 
-Wael Alhathal - University of California, Berkeley - AI/ML Student
+## **1 – Introduction and Business Analysis**
+
+### **1.1 Business Understanding**
+Traffic collisions impose severe human and economic costs, including injuries, fatalities, property damage, and emergency response burdens. This analysis aims to help policymakers and transportation engineers:
+- Identify **high-risk conditions** and **corridors**
+- Understand the role of **environmental and temporal factors**
+- Support **data-driven safety interventions** aligned with Vision Zero goals
+
+---
+
+### **1.2 About the Data**
+- **Source:** San Diego Association of Governments (SANDAG) portal  
+- **Time Span:** 2014–2023  
+- **Records:** ~251,000 collisions  
+- **Variables:** 44 fields including date, location, casualties, collision type, weather, lighting, and contributing factors  
+
+---
+
+### **1.3 Research Objectives**
+1. Perform **exploratory data analysis** to uncover trends and patterns in collision severity  
+2. Build a **baseline regression model** to predict total casualties  
+3. Extend to **classification modeling** for predicting severe collisions  
+4. Interpret results to guide **safety planning and future modeling improvements**  
+
+---
+
+## **3 – Data Understanding**
+- **Size:** 251,098 rows × 44 columns  
+- **Types:** Numeric, categorical, boolean  
+- **Core features:** party count, injuries, fatalities, environmental flags  
+- **Missingness:** Minimal for key outcome variables; sparse geometry fields  
+
+---
+
+## **4 – Data Cleaning**
+- Removed duplicates by `CASE ID`  
+- Dropped geometry-related columns to reduce memory usage  
+- Imputed missing numeric values (injuries, fatalities, party count) with zero  
+- Filled categorical nulls with `"Unknown"`  
+- Added binary flags for adverse conditions  
+
+---
+
+## **5 – Outlier Analysis**
+- Used **IQR-based detection**  
+- Identified extreme values (e.g., 14-party pileups, 33 injuries)  
+- Capped casualties at 99th percentile for modeling while retaining original distribution for analysis  
+
+---
+
+## **6 – Feature Engineering**
+- `Total Casualties` = Injuries + Fatalities  
+- Derived binary and categorical flags:  
+  - `is_weekend`, `at_intersection`, `adverse_weather`, `poor_lighting`  
+  - Severity tiers: `casualty_level` (none, minor, major)  
+- Encoded `day_of_week_code`  
+
+---
+
+## **7 – Exploratory Data Analysis**
+- **Most crashes**: low-severity (0–1 casualty, ≤2 parties) under clear daylight conditions  
+- **Temporal trend**: collisions peaked in 2018, dipped during the pandemic, rebounded by 2023  
+- **Contextual patterns**: weekends, adverse weather, and poor lighting slightly increase casualties  
+- **Correlation**:  
+  - Total casualties strongly linked to injuries (r ≈ 0.99)  
+  - Weak association with party count (r ≈ 0.19)  
+
+---
+
+## **8 – Regression Modeling**
+
+### **Baseline Linear Regression**
+- **Features:** PARTY COUNT, NUMBER KILLED, day_of_week_code, is_weekend, at_intersection, adverse_weather, poor_lighting  
+- **Performance:**  
+  - **MAE:** ~0.67 casualties  
+  - **R²:** ~0.049 (explains only 4.9% variance)  
+- **Coefficient Insights:**  
+  - `NUMBER KILLED` (~0.94) dominates  
+  - `PARTY COUNT` (~0.24) is secondary  
+  - Contextual effects are minor  
+
+### **Advanced Models**
+- **Random Forest & XGBoost:**  
+  - CV MAE: ~0.672  
+  - R²: ~0.046  
+- Hyperparameter tuning produced no significant gains, indicating feature limitations  
+
+---
+
+## **9 – Classification Modeling**
+- **Target:** `is_severe_collision` = 1 if Total Casualties ≥ 2  
+- **Models:** Logistic Regression, Random Forest, XGBoost  
+- **Results:**  
+  - Accuracy ~85% (misleading due to imbalance)  
+  - Precision improved (up to ~0.63), but **Recall <1%**  
+  - ROC-AUC near random (0.50–0.65)  
+- **Challenge:** Severe class imbalance → almost no severe crashes detected without rebalancing methods  
+
+---
+
+## **10 – Conclusions and Future Recommendations**
+
+### **10.1 Key Takeaways**
+- Most collisions are low-severity; severe crashes are rare but critical  
+- Contextual factors (weekend, weather, lighting) show modest impact  
+- Baseline regression and advanced models achieved **low explanatory power**  
+- Classification models performed poorly for severe crashes due to **extreme imbalance**  
+
+### **10.2 Final Conclusion**
+The project successfully established a **descriptive and modeling baseline** for collision severity analysis in San Diego. While predictive accuracy remains limited, these findings highlight critical directions for future work.
+
+### **10.3 Future Recommendations**
+Although this project is complete, future improvements could include:
+- Richer feature sets (road type, speed limits, traffic volume)  
+- One-hot encoding and interaction terms  
+- Class balancing (SMOTE, weighted models)  
+- Geospatial clustering for hotspot prediction  
+- Advanced interpretability (SHAP, partial dependence)  
+- Deployment through interactive dashboards for decision-makers  
+
+---
+
+## **Repository Contents**
+- `San-Diego-Traffic-Collision-Analysis` – Full notebook with EDA, modeling, and results  
+- `SWITRS_2023` – San Diego traffic collision dataset (2014–2023)  
+
+---
+
+## **View Full Notebook**
+[Click here to view the Jupyter Notebook](https://github.com/walhathal/San-Diego-Traffic-Collision-Analysis/blob/main/Capstone%20Project%20AI-ML.ipynb)
+
+---
+
